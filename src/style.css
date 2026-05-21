@@ -1,0 +1,99 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* ── Warm Sepia palette — optimized for reading comfort ───────────────── */
+  --bg:           #fdf6e3;
+  --bg-grad:      linear-gradient(145deg, #fdf6e3 0%, #f9f0d8 55%, #fceedd 100%);
+  --surface:      #fffdf7;
+  --surface-2:    #f5eedd;
+  --surface-3:    #ede3cc;
+  --border:       #d4c4a0;
+  --border-light: #e0d0b0;
+
+  /* ── Text ──────────────────────────────────────────────────────────────── */
+  --text:         #2c1f0e;
+  --text-muted:   #7a6040;
+  --text-dim:     #b8a080;
+
+  /* ── Accent (sage green) ───────────────────────────────────────────────── */
+  --accent:       #5b8a6e;
+  --accent-hover: #3d6b52;
+  --accent-light: #7aad8a;
+  --accent-glow:  rgba(91, 138, 110, 0.20);
+
+  /* ── ORP pivot colour — deep terracotta, pops on warm cream ───────────── */
+  --pivot:        #b83020;
+
+  /* ── Shadows ───────────────────────────────────────────────────────────── */
+  --shadow:       0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-lg:    0 20px 60px rgba(0, 0, 0, 0.14);
+
+  /* ── Semantic tokens (centralize hardcoded values in components) ────────── */
+  --header-bg:        rgba(240, 228, 200, 0.88);
+  --footer-bg:        rgba(240, 228, 200, 0.92);
+  --logo-icon:        #c07830;
+  --error-bg:         rgba(180, 48, 32, 0.09);
+  --error-border:     rgba(180, 48, 32, 0.28);
+  --error-text:       #b83020;
+  --backdrop:         rgba(22, 14, 6, 0.75);
+  --match-bg:         rgba(160, 110, 30, 0.20);
+  --match-focus-bg:   #c07830;
+  --match-focus-text: #fff;
+}
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg-grad);
+  background-attachment: fixed;
+  color: var(--text);
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.5rem 1.2rem;
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+}
+
+button:active { transform: scale(0.97); }
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--surface-3);
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  box-shadow: 0 0 0 3px var(--accent-glow);
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  background: var(--accent-light);
+  box-shadow: 0 0 0 5px var(--accent-glow);
+}
