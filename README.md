@@ -16,7 +16,8 @@ A browser-based speed reading app that displays words one at a time (or in chunk
 - **PDF footer stripping** — page numbers and running footers are automatically excluded
 - **Smart PDF parsing** — uses position data to reconstruct words correctly even when PDFs store text character-by-character
 - **Progress tracking** — current word position and percentage shown in real time
-- **Dark navy UI** — clean, distraction-free dark theme with blue accents
+- **PWA — works offline** — install to your iPhone or iPad home screen; reads files and previously fetched articles with no internet connection
+- **Mobile-friendly** — touch-optimized controls, safe-area insets for iPhone notch, responsive layout down to small phone screens
 
 ---
 
@@ -29,6 +30,7 @@ A browser-based speed reading app that displays words one at a time (or in chunk
 | PDF parsing | [pdfjs-dist](https://mozilla.github.io/pdf.js/) v4 |
 | DOCX parsing | [mammoth](https://github.com/mwilliamson/mammoth.js) (lazy-loaded) |
 | Web page parsing | [@mozilla/readability](https://github.com/mozilla/readability) + [corsproxy.io](https://corsproxy.io) |
+| Offline / PWA | [vite-plugin-pwa](https://vite-pwa-org.netlify.app/) + Workbox |
 | Icons | [Bootstrap Icons](https://icons.getbootstrap.com/) |
 
 ---
@@ -54,6 +56,64 @@ npm run build
 # Preview the production build locally
 npm run preview
 ```
+
+---
+
+## Deploying to Netlify (free, no account required)
+
+This is a fully static app — no server needed. The build output is just files.
+
+### Option 1 — Netlify Drop (fastest, ~1 minute)
+
+1. Run `npm run build` — this creates a `dist/` folder
+2. Go to **[app.netlify.com/drop](https://app.netlify.com/drop)**
+3. Drag the `dist/` folder onto the page
+4. Netlify gives you a live `https://xxxx.netlify.app` URL instantly
+
+No account needed for a temporary URL. Create a free account to keep the URL permanent and re-deploy by dragging again.
+
+### Option 2 — Netlify CLI (re-deploy in one command)
+
+```bash
+npm install -g netlify-cli
+netlify deploy --dir=dist --prod
+```
+
+After the first deploy you can redeploy any time with that single command.
+
+### Option 3 — GitHub + Auto-deploy
+
+Connect your GitHub repo to Netlify and it will rebuild and redeploy automatically every time you push. Set the build command to `npm run build` and the publish directory to `dist`.
+
+---
+
+## Using on iPhone / iPad (PWA — offline capable)
+
+Once deployed to Netlify (or any HTTPS host):
+
+1. Open the URL in **Safari** on your iPhone or iPad
+2. Tap the **Share** button → **Add to Home Screen**
+3. Open the app from your home screen **while still online** — wait a few seconds for the service worker to finish caching everything
+4. That's it. The app now works **fully offline** — no Wi-Fi, no data, nothing
+
+### What works offline
+- Reading files you upload (PDF, DOCX, TXT, Markdown)
+- Pasting text
+- Articles you've fetched via URL in the past week (cached automatically)
+- All controls, preview, search
+
+### What requires internet
+- Fetching new URLs (needs to reach the CORS proxy and the target site)
+
+### If something stops working offline
+
+The service worker (the piece that makes offline work) can sometimes get into a bad state, especially after an app update. To fix it:
+
+1. On iPhone: **Settings → Safari → Advanced → Website Data** → find the site → delete it
+2. Open the site in Safari again while online and wait a few seconds
+3. Re-add to home screen
+
+Or in Safari on the device: hold the reload button → **Reload Without Content Blockers**, then hard-reload (pull down to refresh).
 
 ---
 
@@ -107,29 +167,36 @@ Click **Preview** to open the full-text browser:
 | `Enter` *(in preview search)* | Run search / go to next match |
 | `Esc` *(in preview)* | Clear search, then close preview |
 
+Keyboard shortcuts are hidden on mobile (no physical keyboard).
+
 ---
 
 ## Project Structure
 
 ```
-SpeedReader/
-├── index.html
+EZ-Speedy-Reedy/
+├── index.html               # App shell; PWA meta tags, apple-touch-icon, viewport-fit
 ├── package.json
-├── vite.config.js
+├── vite.config.js           # Vite + PWA plugin config; Workbox precache & runtime cache
+├── public/
+│   ├── icon.svg             # App icon source (sage green lightning bolt)
+│   ├── icon-192.png         # PWA manifest icon (192×192)
+│   ├── icon-512.png         # PWA manifest icon (512×512, maskable)
+│   └── apple-touch-icon.png # iOS home screen icon (180×180)
 └── src/
-    ├── App.vue                  # Root component; all keyboard listeners
-    ├── main.js                  # Vue app entry point
-    ├── style.css                # Global CSS variables (dark theme tokens) and resets
+    ├── App.vue              # Root component; keyboard listeners; safe-area layout
+    ├── main.js              # Vue app entry point
+    ├── style.css            # Global CSS variables (sepia theme) + mobile base styles
     ├── components/
-    │   ├── FileUploader.vue     # Drag-drop file input; routes to correct parser
-    │   ├── WordDisplay.vue      # ORP word renderer — single word or multi-word chunk
-    │   ├── SpeedControl.vue     # WPM slider, chunk size, play/pause, restart, preview
-    │   └── TextPreview.vue      # Full-text browser with phrase search and jump-to
+    │   ├── FileUploader.vue # Upload / URL / Paste tabs; drag-drop; URL fetch + Readability
+    │   ├── WordDisplay.vue  # ORP word renderer — single word or multi-word chunk
+    │   ├── SpeedControl.vue # WPM slider, chunk size, play/pause, restart, preview
+    │   └── TextPreview.vue  # Full-text browser with phrase search and jump-to
     ├── composables/
-    │   └── useReader.js         # All reading state and timing logic
+    │   └── useReader.js     # All reading state and timing logic
     └── utils/
-        ├── parsers.js           # PDF (position-aware), DOCX, TXT, and Markdown parsers
-        └── tokenizer.js         # Splits raw text into a word array
+        ├── parsers.js       # PDF, DOCX, TXT, Markdown, and URL parsers
+        └── tokenizer.js     # Splits raw text into a word array
 ```
 
 ---
@@ -145,6 +212,23 @@ Each word is split into three `<span>` elements:
 Both the `before` and `after` spans have `flex: 1`, which forces them to share the remaining space equally. The `pivot` (center letter, `Math.floor(word.length / 2)`) always ends up at the exact horizontal midpoint of the screen regardless of word length — your eye never has to move.
 
 For multi-word chunks, words are displayed side by side centered as a group. Each word still has its own pivot letter highlighted. Font size scales down automatically as chunk count increases to keep everything on one line.
+
+---
+
+## How the PWA / Offline Works
+
+The build step runs Workbox (via `vite-plugin-pwa`) which generates a service worker (`sw.js`) that precaches every asset in the build output:
+
+| Cached | Why |
+|---|---|
+| HTML, CSS, JS bundles | Core app shell |
+| Bootstrap Icons fonts (`.woff2`, `.woff`) | UI icon glyphs |
+| PDF.js worker (`.mjs`, ~2.2 MB) | In-browser PDF parsing |
+| App icons (`.png`, `.svg`) | Home screen + favicon |
+
+The service worker uses a **Cache First** strategy for precached assets — requests never hit the network once cached. URL-fetched articles are cached separately for up to 7 days so recently read web pages are available offline too.
+
+> **Important:** Icon files are only added to the precache once (via the manifest icons list). Duplicating them between `includeAssets` and `globPatterns` causes Workbox to silently abort the install, which breaks offline entirely.
 
 ---
 
@@ -171,3 +255,4 @@ Warm Sepia theme — optimized for reading comfort (same principle as Kindle's d
 - **Large PDFs** may take a few seconds to parse; a loading spinner is shown during extraction.
 - mammoth (DOCX parser) is lazy-loaded — it is only downloaded the first time you open a `.docx` file.
 - PDF footer detection drops items in the bottom **7%** of each page's height (page numbers, copyright lines, etc.).
+- The URL fetch tab requires an internet connection and a CORS proxy (`corsproxy.io`). It will not work on pages that require login or that render content via JavaScript after load.

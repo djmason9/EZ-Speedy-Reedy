@@ -97,3 +97,17 @@ input[type="range"]::-webkit-slider-thumb:hover {
   background: var(--accent-light);
   box-shadow: 0 0 0 5px var(--accent-glow);
 }
+
+/* ── Mobile base tweaks ─────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  /* Ensure all tappable things are at least 44px tall (Apple HIG) */
+  button {
+    min-height: 44px;
+  }
+
+  /* Bigger slider thumb for fat fingers */
+  input[type="range"]::-webkit-slider-thumb {
+    width: 26px;
+    height: 26px;
+  }
+}

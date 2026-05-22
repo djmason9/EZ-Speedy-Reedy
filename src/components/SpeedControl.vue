@@ -77,7 +77,7 @@
       <span class="chunk-pip" v-for="n in 4" :key="n" :class="{ active: n <= chunkSize }"></span>
     </div>
 
-    <!-- Keyboard hint -->
+    <!-- Keyboard hint — hidden on touch devices -->
     <p class="hint">
       <kbd>Space</kbd> play / pause &nbsp;·&nbsp;
       <kbd><i class="bi bi-arrow-left"></i></kbd>
@@ -281,5 +281,55 @@ kbd {
   font-size: 0.75rem;
   background: var(--surface-2);
   color: var(--text-muted);
+}
+
+/* ── Mobile layout ─────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .speed-control {
+    padding: 0.75rem 0.875rem;
+    gap: 0.6rem;
+  }
+
+  /* Hide keyboard shortcut hint — no keyboard on phone */
+  .hint { display: none; }
+
+  /* Bigger +/- buttons for fat fingers */
+  .adj-btn {
+    width: 42px;
+    height: 42px;
+    font-size: 1.1rem;
+  }
+
+  /* Slider takes full available width */
+  .gauge-row {
+    max-width: 100%;
+  }
+
+  /* Action buttons: Play is full-width row 1, Restart + Preview share row 2 */
+  .btn-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .btn-play {
+    grid-column: 1 / -1;  /* full width */
+    justify-content: center;
+    min-height: 50px;
+    font-size: 1.05rem;
+  }
+
+  .btn-restart,
+  .btn-preview {
+    justify-content: center;
+  }
+
+  /* Chunk row: tighter */
+  .chunk-row { gap: 0.4rem; }
+  .chunk-label { font-size: 0.75rem; }
+
+  /* Progress: smaller text */
+  .progress-info { font-size: 0.8rem; }
 }
 </style>

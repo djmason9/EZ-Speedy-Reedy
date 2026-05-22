@@ -1,11 +1,16 @@
 <template>
   <div class="app">
+
+    <!-- EULA — shown once on first visit -->
+    <EulaModal v-if="showEula" @accepted="acceptEula" />
+
     <!-- Header -->
     <header class="app-header">
       <h1 class="logo"><i class="bi bi-lightning-charge-fill"></i> EZ Speedy Reedy</h1>
       <span v-if="fileName" class="file-name">
         <i class="bi bi-file-earmark-text"></i>{{ fileName }}
       </span>
+      <span class="copyright">© <a href="https://bitcows.com" target="_blank" rel="noopener">bitcows.com</a></span>
     </header>
 
     <!-- Main content -->
@@ -54,6 +59,7 @@ import FileUploader from '@/components/FileUploader.vue'
 import WordDisplay  from '@/components/WordDisplay.vue'
 import SpeedControl from '@/components/SpeedControl.vue'
 import TextPreview  from '@/components/TextPreview.vue'
+import EulaModal    from '@/components/EulaModal.vue'
 import { useReader } from '@/composables/useReader'
 
 const {
@@ -75,6 +81,15 @@ const {
 
 const showPreview = ref(false)
 const fileName    = ref('')
+
+// ── EULA ────────────────────────────────────────────────────────────────────
+const EULA_KEY = 'esr-eula-accepted'
+const showEula = ref(localStorage.getItem(EULA_KEY) !== 'yes')
+
+function acceptEula() {
+  localStorage.setItem(EULA_KEY, 'yes')
+  showEula.value = false
+}
 
 function onTextLoaded(text, name) {
   loadText(text)
@@ -119,6 +134,9 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
 /* ── Header ──────────────────────────────────────────────────────────────── */
 .app-header {
   padding: 0.75rem 2rem;
+  /* Respect iPhone notch on left/right sides */
+  padding-left: max(2rem, env(safe-area-inset-left));
+  padding-right: max(2rem, env(safe-area-inset-right));
   background: var(--header-bg);
   border-bottom: 1px solid var(--border);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
@@ -138,6 +156,24 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
   white-space: nowrap;
   text-overflow: ellipsis;
   max-width: 50ch;
+}
+
+.copyright {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.copyright a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.copyright a:hover {
+  color: var(--accent);
+  text-decoration: underline;
 }
 
 .logo {
@@ -161,6 +197,17 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
   width: 100%;
   margin: 0 auto;
   gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .app-main {
+    padding: 0.75rem 0.75rem;
+    gap: 0.6rem;
+  }
+
+  .logo {
+    font-size: 1.1rem;
+  }
 }
 
 /* Upload section */
@@ -193,5 +240,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
   background: var(--footer-bg);
   border-top: 1px solid var(--border);
   backdrop-filter: blur(8px);
+  /* Push content above the iPhone home indicator */
+  padding-bottom: env(safe-area-inset-bottom);
 }
 </style>

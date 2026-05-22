@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Rounded square background — sage green -->
+  <rect width="512" height="512" rx="112" fill="#5b8a6e"/>
+  <!-- Lightning bolt — warm cream -->
+  <path d="M308 56 L148 272 h116 L192 456 L388 208 H268 Z"
+        fill="#fdf6e3" stroke="#fdf6e3" stroke-width="4"
+        stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

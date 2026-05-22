@@ -77,6 +77,13 @@ const multiFontSize = computed(() => {
   min-height: 200px;
 }
 
+@media (max-width: 640px) {
+  .word-display-container {
+    padding: 24px 0;
+    min-height: 140px;
+  }
+}
+
 /* ── Horizontal rules ──────────────────────────────────────────────────────── */
 .h-line {
   width: 100%;
