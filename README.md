@@ -9,6 +9,7 @@ A browser-based speed reading app that displays words one at a time (or in chunk
 - **ORP word display** — center letter highlighted, word always aligned to the same focal point on screen
 - **Word chunking** — flash 1, 2, 3, or 4 words at a time; WPM stays constant regardless of chunk size
 - **File upload** — drag-and-drop or browse; supports PDF, DOCX, TXT, and Markdown (`.md`)
+- **URL import** — paste any article or blog URL and the page is fetched and parsed automatically (uses Mozilla Readability, same engine as Firefox Reader View)
 - **Adjustable speed** — default 350 WPM, range 60–1000 WPM via slider, buttons, or arrow keys
 - **Text preview** — browse the full document before reading, search for a word or phrase, and click any word to jump directly to that starting point
 - **Phrase search** — multi-word queries find consecutive word sequences across the entire text
@@ -27,6 +28,7 @@ A browser-based speed reading app that displays words one at a time (or in chunk
 | Framework | [Vue 3](https://vuejs.org/) (Composition API) |
 | PDF parsing | [pdfjs-dist](https://mozilla.github.io/pdf.js/) v4 |
 | DOCX parsing | [mammoth](https://github.com/mwilliamson/mammoth.js) (lazy-loaded) |
+| Web page parsing | [@mozilla/readability](https://github.com/mozilla/readability) + [corsproxy.io](https://corsproxy.io) |
 | Icons | [Bootstrap Icons](https://icons.getbootstrap.com/) |
 
 ---
@@ -57,8 +59,10 @@ npm run preview
 
 ## How to Use
 
-### 1. Load a file
-Drag and drop a file onto the upload area, or click it to browse. Supported formats:
+### 1. Load content
+Choose a tab in the loader card:
+
+**Upload File** — drag and drop or click to browse. Supported formats:
 
 | Format | Extension | Notes |
 |---|---|---|
@@ -67,7 +71,11 @@ Drag and drop a file onto the upload area, or click it to browse. Supported form
 | Plain text | `.txt` | UTF-8 encoded |
 | Markdown | `.md` | Markdown syntax is stripped; only prose is read |
 
-You can load a new file at any time — it replaces the current text and resets to the beginning.
+**URL** — paste any article or blog URL and click **Fetch & Read** (or press Enter). The page is fetched via a CORS proxy and parsed with Mozilla Readability, extracting only the article body. Works well on news sites, Wikipedia, Medium, Substack, and most static article pages. Does not work on paywalled pages, login-required pages, or SPAs that render content via JavaScript after load.
+
+**Paste Text** — paste raw text directly into the box and click **Start Reading**.
+
+You can load new content at any time — it replaces the current text and resets to the beginning.
 
 ### 2. Start reading
 Press **Play** or hit **Space** — words flash at the center of the screen at 350 WPM by default.
