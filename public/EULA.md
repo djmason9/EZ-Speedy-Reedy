@@ -1,7 +1,7 @@
 # End User License Agreement (EULA)
 
 **EZ Speedy Reedy**
-© 2025 bitcows.com — All Rights Reserved
+© 2026 bitcows.com — All Rights Reserved
 
 ---
 
@@ -72,4 +72,4 @@ For licensing inquiries or permissions beyond the scope of this Agreement, conta
 
 ---
 
-*Last updated: 2025*
+*Last updated: 2026*

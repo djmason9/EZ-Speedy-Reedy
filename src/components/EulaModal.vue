@@ -28,7 +28,7 @@
         </p>
 
         <p class="eula-copy copyright">
-          © 2025 <a href="https://bitcows.com" target="_blank" rel="noopener">bitcows.com</a>
+          © 2026 <a href="https://bitcows.com" target="_blank" rel="noopener">bitcows.com</a>
           — All Rights Reserved
         </p>
       </div>
