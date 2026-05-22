@@ -12,7 +12,7 @@ export function useReader() {
   const words        = ref([])   // string[]
   const currentIndex = ref(0)
   const isPlaying    = ref(false)
-  const wpm          = ref(350)
+  const wpm          = ref(300)
   const chunkSize    = ref(1)    // words shown per flash (1–4)
 
   let timerId = null

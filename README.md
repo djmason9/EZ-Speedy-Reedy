@@ -1,4 +1,4 @@
-# ⚡ SpeedReader
+# ⚡ EZ Speedy Reedy
 
 A browser-based speed reading app that displays words one at a time (or in chunks) using the **Optimal Recognition Point (ORP)** technique — the center letter of each word is pinned at a fixed focal point and highlighted in coral red, training your eye to stop wandering and dramatically increase reading speed.
 

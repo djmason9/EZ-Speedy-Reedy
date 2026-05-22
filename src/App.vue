@@ -2,7 +2,7 @@
   <div class="app">
     <!-- Header -->
     <header class="app-header">
-      <h1 class="logo"><i class="bi bi-lightning-charge-fill"></i> SpeedReader</h1>
+      <h1 class="logo"><i class="bi bi-lightning-charge-fill"></i> EZ Speedy Reedy</h1>
       <span v-if="fileName" class="file-name">
         <i class="bi bi-file-earmark-text"></i>{{ fileName }}
       </span>

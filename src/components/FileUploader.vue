@@ -12,6 +12,13 @@
       </button>
       <button
         class="tab-btn"
+        :class="{ active: mode === 'url' }"
+        @click="mode = 'url'; error = null"
+      >
+        <i class="bi bi-link-45deg"></i> URL
+      </button>
+      <button
+        class="tab-btn"
         :class="{ active: mode === 'paste' }"
         @click="mode = 'paste'; error = null"
       >
@@ -52,6 +59,31 @@
       </template>
     </div>
 
+    <!-- ── URL mode ───────────────────────────────────────────────────────── -->
+    <div v-else-if="mode === 'url'" class="paste-area">
+      <div class="url-input-row">
+        <input
+          v-model="urlText"
+          class="url-input"
+          type="url"
+          placeholder="https://example.com/article"
+          spellcheck="false"
+          :disabled="isLoading"
+          @keydown.enter="submitUrl"
+        />
+      </div>
+      <p class="url-hint">Works best on articles, blog posts, and Wikipedia pages.</p>
+      <button
+        class="btn-read"
+        :disabled="!urlText.trim() || isLoading"
+        @click="submitUrl"
+      >
+        <span v-if="isLoading" class="btn-spinner" />
+        <i v-else class="bi bi-cloud-download"></i>
+        {{ isLoading ? 'Fetching…' : 'Fetch & Read' }}
+      </button>
+    </div>
+
     <!-- ── Paste mode ──────────────────────────────────────────────────────── -->
     <div v-else class="paste-area">
       <textarea
@@ -83,7 +115,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { parseFile } from '@/utils/parsers'
+import { parseFile, parseUrl } from '@/utils/parsers'
 
 defineProps({
   /** True once text has been loaded — changes upload label */
@@ -93,8 +125,9 @@ defineProps({
 const emit = defineEmits(['text-loaded'])
 
 // ── State ───────────────────────────────────────────────────────────────────
-const mode           = ref('file')   // 'file' | 'paste'
+const mode           = ref('file')   // 'file' | 'url' | 'paste'
 const pasteText      = ref('')
+const urlText        = ref('')
 const fileInput      = ref(null)
 const isDragging     = ref(false)
 const isLoading      = ref(false)
@@ -131,6 +164,25 @@ async function processFile(file) {
     emit('text-loaded', rawText, file.name)
   } catch (err) {
     error.value = err.message || 'An unknown error occurred while parsing the file.'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// ── URL fetch ───────────────────────────────────────────────────────────────
+async function submitUrl() {
+  const url = urlText.value.trim()
+  if (!url) return
+
+  error.value   = null
+  isLoading.value = true
+
+  try {
+    const { title, text } = await parseUrl(url)
+    urlText.value = ''
+    emit('text-loaded', text, title)
+  } catch (err) {
+    error.value = err.message || 'Failed to fetch the page.'
   } finally {
     isLoading.value = false
   }
@@ -181,7 +233,8 @@ function submitPaste() {
 }
 
 .tab-btn:first-child { border-radius: 12px 0 0 0; }
-.tab-btn:last-child  { border-radius: 0 12px 0 0; border-left: 1px solid var(--border); }
+.tab-btn:last-child  { border-radius: 0 12px 0 0; }
+.tab-btn:not(:first-child) { border-left: 1px solid var(--border); }
 
 .tab-btn:hover:not(.active) {
   background: var(--surface-3);
@@ -251,6 +304,52 @@ function submitPaste() {
   margin: 0 auto 0.6rem;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── URL area ──────────────────────────────────────────────────────────────── */
+.url-input-row {
+  display: flex;
+  gap: 0;
+}
+
+.url-input {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: monospace;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.url-input::placeholder { color: var(--text-dim); }
+
+.url-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.url-input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.url-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Inline spinner inside the fetch button */
+.btn-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
 
 /* ── Paste area ────────────────────────────────────────────────────────────── */
 .paste-area {

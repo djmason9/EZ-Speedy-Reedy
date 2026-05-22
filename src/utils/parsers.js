@@ -181,6 +181,62 @@ function stripMarkdown(text) {
 }
 
 /**
+ * Fetch a URL via a CORS proxy and extract the article text using
+ * @mozilla/readability — the same engine Firefox Reader View uses.
+ *
+ * Returns { title, text } so callers can display a meaningful filename.
+ */
+export async function parseUrl(url) {
+  // Validate URL format before hitting the network
+  let parsed
+  try {
+    parsed = new URL(url)
+  } catch {
+    throw new Error('Please enter a valid URL (e.g. https://example.com/article).')
+  }
+  if (!['http:', 'https:'].includes(parsed.protocol)) {
+    throw new Error('Only http:// and https:// URLs are supported.')
+  }
+
+  // corsproxy.io proxies the request server-side, bypassing browser CORS restrictions.
+  const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(url)}`
+  let response
+  try {
+    response = await fetch(proxyUrl)
+  } catch {
+    throw new Error('Network error — check your internet connection and try again.')
+  }
+  if (!response.ok) {
+    throw new Error(`Could not fetch page (HTTP ${response.status}). The site may block proxies.`)
+  }
+
+  const html = await response.text()
+
+  // Parse the HTML string into a real DOM so Readability can traverse it.
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+
+  // Set the base URI so Readability can resolve relative links/images correctly.
+  const base = doc.createElement('base')
+  base.href = url
+  doc.head.prepend(base)
+
+  const { Readability } = await import('@mozilla/readability')
+  const article = new Readability(doc).parse()
+
+  if (!article?.textContent?.trim()) {
+    throw new Error(
+      'Could not extract readable text from this page. ' +
+      'It may require JavaScript to render, or may be behind a login.'
+    )
+  }
+
+  return {
+    title: article.title?.trim() || parsed.hostname,
+    text:  article.textContent.trim(),
+  }
+}
+
+/**
  * Route a File to the correct parser based on MIME type and extension.
  */
 export async function parseFile(file) {
